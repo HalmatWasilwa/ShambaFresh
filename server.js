@@ -17,13 +17,21 @@ async function connectDB(){
   const [a]=await db.execute("SELECT * FROM Users WHERE email='admin@shamba.com'");
   if(!a.length){const h=await bcrypt.hash('admin123',10);await db.execute("INSERT INTO Users(full_name,email,password,role,status) VALUES(?,?,?,?,?)",['Admin','admin@shamba.com',h,'Admin','Approved']);}
 }
-connectDB();
-async function doRegister(req,res){
-  try{const {full_name,email,phone,location,password,role}=req.body;if(!full_name||!email||!password)return res.json({success:false,msg:'Fill all fields'});
-  const hash=await bcrypt.hash(password,10);
-  await db.execute("INSERT INTO Users(full_name,email,phone,location,password,role,status) VALUES(?,?,?,?,?,?, 'Pending')",[full_name,email,phone||'',location||'',hash,role||'Buyer']);
-  res.json({success:true,msg:'✅ Registered! Wait for Admin Approval, then Login.'});
-  }catch(e){res.json({success:false,msg:'Email already exists'});}
+async function connectDB(){
+  db=await mysql.createConnection({host:process.env.DB_HOST||'localhost',user:process.env.DB_USER||'root',password:process.env.DB_PASS||'',database:process.env.DB_NAME||'shambafresh'});
+  console.log("✅ DB Connected");
+  await db.execute(`CREATE TABLE IF NOT EXISTS Users(user_id INT AUTO_INCREMENT PRIMARY KEY, full_name VARCHAR(100), email VARCHAR(100) UNIQUE, phone VARCHAR(20), location VARCHAR(100), password VARCHAR(255), role VARCHAR(20), status VARCHAR(20) DEFAULT 'Pending')`);
+  await db.execute(`CREATE TABLE IF NOT EXISTS Produce(produce_id INT AUTO_INCREMENT PRIMARY KEY, farmer_id INT, name VARCHAR(100), category VARCHAR(50), price DECIMAL(10,2), stock INT, location VARCHAR(100), status VARCHAR(20) DEFAULT 'Pending')`);
+  await db.execute(`CREATE TABLE IF NOT EXISTS Orders(order_id INT AUTO_INCREMENT PRIMARY KEY, buyer_id INT, total_amount DECIMAL(10,2), status VARCHAR(20) DEFAULT 'Pending', delivery_location VARCHAR(255), payment_method VARCHAR(50))`);
+
+  // --- FIX OLD TABLE: Add missing columns if they don't exist ---
+  try{ await db.execute("ALTER TABLE Users ADD COLUMN phone VARCHAR(20)"); }catch(e){}
+  try{ await db.execute("ALTER TABLE Users ADD COLUMN location VARCHAR(100)"); }catch(e){}
+  try{ await db.execute("ALTER TABLE Produce ADD COLUMN location VARCHAR(100)"); }catch(e){}
+  console.log("✅ Tables Fixed");
+
+  const [a]=await db.execute("SELECT * FROM Users WHERE email='admin@shamba.com'");
+  if(!a.length){const h=await bcrypt.hash('admin123',10);await db.execute("INSERT INTO Users(full_name,email,password,role,status) VALUES(?,?,?,?,?)",['Admin','admin@shamba.com',h,'Admin','Approved']);}
 }
 async function doLogin(req,res){
   try{const {email,password}=req.body;const [rows]=await db.execute("SELECT * FROM Users WHERE email=?",[email]);if(!rows.length)return res.json({success:false,msg:'User not found'});
