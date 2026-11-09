@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ShambaFresh - Fresh From Farm To You</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
 body{background:#f6fdf6;color:#222}
-header{background:#1a7a2e;color:white;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+header{background:#1a7a2e;color:white;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}
 header h1{font-size:24px} header h1 span{color:#ffdd00}
-nav a{color:white;text-decoration:none;margin-left:12px;font-weight:600;font-size:14px}
+nav a{color:white;text-decoration:none;margin-left:12px;font-weight:600;font-size:14px;cursor:pointer}
 .cart-btn{background:#ffdd00;color:#222;padding:8px 14px;border-radius:20px;font-weight:800;cursor:pointer;border:none}
 .hero{display:flex;flex-wrap:wrap;background:#fff}
 .hero-text{flex:1;min-width:300px;padding:35px}
@@ -29,11 +28,10 @@ nav a{color:white;text-decoration:none;margin-left:12px;font-weight:600;font-siz
 .auth{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
 .box{background:white;padding:22px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
 .box h3{color:#1a7a2e;margin-bottom:10px}
-.box input,.box select{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px}
+.box input,.box select,.box textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px}
 .tab{padding:9px 16px;border-radius:20px;background:#eaf7ec;cursor:pointer;font-weight:700;display:inline-block;margin-right:8px}
 .tab.active{background:#1a7a2e;color:white}
-.msg{padding:10px;border-radius:8px;margin:10px 0;display:none} .success{background:#d4edda} .error{background:#f8d7da}
-/* CART DRAWER */
+.msg{padding:10px;border-radius:8px;margin:10px 0;display:none} .success{background:#d4edda;display:block} .error{background:#f8d7da;display:block}
 #cartDrawer{position:fixed;right:-380px;top:0;width:360px;max-width:90%;height:100%;background:white;box-shadow:-4px 0 20px rgba(0,0,0,.2);z-index:200;padding:20px;transition:.3s;overflow-y:auto}
 #cartDrawer.open{right:0}
 .cart-item{display:flex;gap:10px;border-bottom:1px solid #eee;padding:10px 0;align-items:center}
@@ -44,259 +42,108 @@ footer{background:#123f1d;color:white;text-align:center;padding:20px;margin-top:
 </style>
 </head>
 <body>
-
 <header>
   <h1>🌾 Shamba<span>Fresh</span></h1>
-  <nav>
-    <a href="#home">Home</a><a href="#shop">Shop</a><a href="#auth">Register/Login</a><a href="produce_list.php">Live Produce</a><a href="admin.php">Admin</a>
-  </nav>
+  <nav><a href="#home">Home</a><a href="#shop">Shop</a><a href="#auth">Register/Login</a><a onclick="openAdmin()">Admin</a><a onclick="openFarmer()">Farmer</a><span id="userLabel" style="font-weight:800"></span></nav>
   <button class="cart-btn" onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>) - KES <span id="cartTotalTop">0</span></button>
 </header>
-
 <section class="hero" id="home">
-  <div class="hero-text">
-    <span class="badge">✅ FRESH • DIRECT FROM KENYAN FARMERS</span>
+  <div class="hero-text"><span class="badge">✅ FRESH • DIRECT FROM KENYAN FARMERS</span>
     <h2>Fresh Produce.<br>Fair Prices.<br>Farm To Door.</h2>
     <p>Buy tomatoes, sukuma, onions, maize, potatoes directly from verified farmers. No middlemen. Pay via M-Pesa. Delivery in 24hrs.</p>
-    <a class="btn btn-green" href="#shop">🛒 Shop Now</a>
-    <a class="btn btn-yellow" href="#auth">👩🏾‍🌾 Join As Farmer</a>
-    <p style="font-size:13px">📍 Nairobi • Kiambu • Nakuru • Eldoret | 🚚 Delivery | 💳 M-Pesa</p>
-  </div>
+    <a class="btn btn-green" href="#shop">🛒 Shop Now</a><a class="btn btn-yellow" href="#auth">👩🏾‍🌾 Join As Farmer</a>
+    <p style="font-size:13px">📍 Nairobi • Kiambu • Nakuru • Eldoret | 🚚 Delivery | 💳 M-Pesa</p></div>
   <div class="hero-img"></div>
 </section>
-
-<!-- SHOP WITH SEARCH + FILTER + CART -->
 <section class="section" id="shop">
-  <h2>🛒 Shop Fresh Produce</h2>
-  <p>Search, filter by category, add to cart, checkout. This is linked to live database via <b>produce_list.php</b>.</p>
+  <h2>🛒 Shop Fresh Produce</h2><p id="produceMsg" style="color:#888">Loading live produce from database...</p>
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="🔍 Search e.g. tomatoes, sukuma..." onkeyup="filterProduce()">
-    <select id="catFilter" onchange="filterProduce()">
-      <option value="">All Categories</option>
-      <option value="Vegetables">Vegetables</option>
-      <option value="Fruits">Fruits</option>
-      <option value="Grains">Grains</option>
-      <option value="Dairy">Dairy</option>
-    </select>
-    <select id="priceFilter" onchange="filterProduce()">
-      <option value="">All Prices</option>
-      <option value="0-100">Under KES 100</option>
-      <option value="100-200">KES 100 - 200</option>
-      <option value="200-1000">Above KES 200</option>
-    </select>
-    <a class="btn btn-green" href="produce_list.php">View Live DB Produce →</a>
+    <select id="catFilter" onchange="filterProduce()"><option value="">All Categories</option><option value="Vegetables">Vegetables</option><option value="Fruits">Fruits</option><option value="Grains">Grains</option><option value="Dairy">Dairy</option></select>
+    <select id="priceFilter" onchange="filterProduce()"><option value="">All Prices</option><option value="0-100">Under KES 100</option><option value="100-200">KES 100 - 200</option><option value="200-1000">Above KES 200</option></select>
+    <button class="btn btn-green" onclick="loadProduce()">🔄 Refresh Live Produce</button>
   </div>
-
-  <div class="cards" id="produceGrid">
-    <!-- PRODUCT 1 -->
-    <div class="card" data-name="tomatoes" data-cat="Vegetables" data-price="120">
-      <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&q=80">
-      <div><h3>🍅 Tomatoes</h3><p>Vegetables • From Kiambu • Farmer: Mary</p><p class="stock">✅ In Stock - 50kg</p><p class="price">KES 120 / kg</p>
-      <button class="btn btn-green" onclick="addToCart('Tomatoes',120,'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-    <!-- PRODUCT 2 -->
-    <div class="card" data-name="sukuma wiki" data-cat="Vegetables" data-price="50">
-      <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80">
-      <div><h3>🥬 Sukuma Wiki</h3><p>Vegetables • From Nakuru • Farmer: John</p><p class="stock">✅ In Stock - 100 bunches</p><p class="price">KES 50 / bunch</p>
-      <button class="btn btn-green" onclick="addToCart('Sukuma Wiki',50,'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-    <!-- PRODUCT 3 -->
-    <div class="card" data-name="potatoes" data-cat="Vegetables" data-price="180">
-      <img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&q=80">
-      <div><h3>🥔 Potatoes</h3><p>Vegetables • From Nyandarua</p><p class="stock">✅ In Stock - 80kg</p><p class="price">KES 180 / 2kg</p>
-      <button class="btn btn-green" onclick="addToCart('Potatoes',180,'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-    <!-- PRODUCT 4 -->
-    <div class="card" data-name="onions" data-cat="Vegetables" data-price="90">
-      <img src="https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=800&q=80">
-      <div><h3>🧅 Onions</h3><p>Vegetables • From Eldoret</p><p class="stock">✅ In Stock - 60kg</p><p class="price">KES 90 / kg</p>
-      <button class="btn btn-green" onclick="addToCart('Onions',90,'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-    <!-- PRODUCT 5 -->
-    <div class="card" data-name="maize" data-cat="Grains" data-price="150">
-      <img src="https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=800&q=80">
-      <div><h3>🌽 Maize</h3><p>Grains • From Kitale</p><p class="stock">✅ In Stock - 200kg</p><p class="price">KES 150 / 2kg</p>
-      <button class="btn btn-green" onclick="addToCart('Maize',150,'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-    <!-- PRODUCT 6 -->
-    <div class="card" data-name="bananas" data-cat="Fruits" data-price="80">
-      <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=800&q=80">
-      <div><h3>🍌 Bananas</h3><p>Fruits • From Meru</p><p class="stock">✅ In Stock - 90 bunches</p><p class="price">KES 80 / bunch</p>
-      <button class="btn btn-green" onclick="addToCart('Bananas',80,'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-    <!-- PRODUCT 7 -->
-    <div class="card" data-name="milk" data-cat="Dairy" data-price="70">
-      <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=800&q=80">
-      <div><h3>🥛 Fresh Milk</h3><p>Dairy • From Kiambu</p><p class="stock">✅ In Stock - 40 litres</p><p class="price">KES 70 / litre</p>
-      <button class="btn btn-green" onclick="addToCart('Fresh Milk',70,'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-    <!-- PRODUCT 8 -->
-    <div class="card" data-name="cabbage" data-cat="Vegetables" data-price="100">
-      <img src="https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=800&q=80">
-      <div><h3>� cabbage</h3><p>Vegetables • From Limuru</p><p class="stock">✅ In Stock - 70 pcs</p><p class="price">KES 100 / pc</p>
-      <button class="btn btn-green" onclick="addToCart('Cabbage',100,'https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=200&q=80')">🛒 Add to Cart</button>
-      <a class="btn btn-white" href="produce_list.php">Details</a></div>
-    </div>
-  </div>
+  <div class="cards" id="produceGrid"></div>
 </section>
-
-<!-- CART DRAWER -->
 <div id="cartDrawer">
-  <h2>🛒 Your Cart <button style="float:right" onclick="toggleCart()">✖</button></h2>
-  <p style="font-size:13px;color:#666">Items you add here are saved. Checkout sends order to database.</p>
-  <div id="cartItems"></div>
-  <hr>
-  <p><b>Subtotal:</b> KES <span id="cartSubtotal">0</span></p>
-  <p><b>Delivery:</b> KES <span id="deliveryFee">100</span></p>
-  <h3>Total: KES <span id="cartTotal">0</span></h3>
-  <label>Delivery Location:</label>
+  <h2>🛒 Your Cart <button style="float:right" onclick="toggleCart()">✖</button></h2><p style="font-size:13px;color:#666">Checkout sends order to database.</p>
+  <div id="cartItems"></div><hr>
+  <p><b>Subtotal:</b> KES <span id="cartSubtotal">0</span></p><p><b>Delivery:</b> KES <span id="deliveryFee">100</span></p><h3>Total: KES <span id="cartTotal">0</span></h3>
   <input type="text" id="deliveryLoc" placeholder="e.g. Westlands, Nairobi" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px">
-  <label>Payment:</label>
-  <select id="payMethod" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px">
-    <option value="M-Pesa">M-Pesa</option><option value="Cash on Delivery">Cash on Delivery</option><option value="Card">Card</option>
-  </select>
+  <select id="payMethod" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"><option value="M-Pesa">M-Pesa</option><option value="Cash on Delivery">Cash on Delivery</option><option value="Card">Card</option></select>
   <button class="btn btn-green" style="width:100%" onclick="checkout()">✅ Checkout - Place Order</button>
   <button class="btn btn-red" style="width:100%" onclick="clearCart()">🗑 Clear Cart</button>
-  <a class="btn btn-white" style="width:100%;text-align:center;display:block" href="cart.php">View Full Cart Page (cart.php) →</a>
   <p id="checkoutMsg" style="margin-top:10px;font-weight:700"></p>
 </div>
-
-<!-- HOW IT WORKS + AUTH -->
 <section class="section" style="background:white;border-radius:14px">
-  <h2>How ShambaFresh Works (Question Paper Flow)</h2>
-  <p>1. <b>Register</b> as Farmer / Buyer → 2. <b>Admin Approves</b> Farmer → 3. <b>Farmer Adds Produce</b> → 4. <b>Admin Approves Produce</b> → 5. <b>Buyer Browses, Adds to Cart, Checks Out</b> → 6. <b>Admin / Farmer Updates Order Status</b> (Pending → Confirmed → Delivered)</p>
+  <h2>How ShambaFresh Works</h2><p>1. <b>Register</b> as Farmer / Buyer → 2. <b>Admin Approves</b> you → 3. <b>Farmer Adds Produce</b> → 4. <b>Admin Approves Produce</b> → 5. <b>Buyer Adds to Cart & Checks Out</b> → 6. <b>Order Delivered</b></p>
+  <div id="adminPanel" style="display:none;margin-top:15px;border-top:2px solid #eee;padding-top:15px"><h3>🛡️ Admin - Approvals</h3><button class="btn btn-green" onclick="loadAdmin()">Load Pending Users & Produce</button><div id="adminData" style="margin-top:10px"></div></div>
+  <div id="farmerPanel" style="display:none;margin-top:15px;border-top:2px solid #eee;padding-top:15px"><h3>👩🏾‍🌾 Farmer - Add Produce</h3><p style="font-size:13px">Your produce goes to Admin for approval before buyers see it.</p>
+  <input id="fName" placeholder="Produce Name e.g. Tomatoes"><select id="fCat"><option>Vegetables</option><option>Fruits</option><option>Grains</option><option>Dairy</option></select><input id="fPrice" type="number" placeholder="Price KES"><input id="fStock" type="number" placeholder="Stock e.g. 50"><button class="btn btn-green" onclick="addProduce()">+ Submit Produce for Approval</button><p id="farmerMsg"></p></div>
 </section>
-
-<section class="section" id="auth">
-  <h2>👋 Join ShambaFresh</h2>
+<section class="section" id="auth"><h2>👋 Join ShambaFresh</h2>
   <div class="auth" style="margin-top:15px">
     <div class="box">
       <span class="tab active" onclick="showTab('reg',this)">Register</span><span class="tab" onclick="showTab('login',this)">Login</span>
-      <div id="regBox" style="margin-top:12px">
-        <h3>📝 Create Account</h3><div id="regMsg" class="msg"></div>
-           <form action="/register" method="POST"></form>" onsubmit="return validateRegister(event)">
-          <input name="full_name" id="regName" placeholder="Full Name e.g. Mary Wanjiku" required>
-          <input type="email" name="email" id="regEmail" placeholder="Email" required>
-          <input name="phone" id="regPhone" placeholder="Phone e.g. 0712345678" required>
-          <input name="location" id="regLocation" placeholder="Location e.g. Kiambu" required>
-          <select name="role" id="regRole" required><option value="">-- I am a --</option><option value="Farmer">Farmer - Sell</option><option value="Buyer">Buyer - Buy</option></select>
-          <input type="password" name="password" id="regPassword" placeholder="Password (min 6)" required>
+      <div id="regBox" style="margin-top:12px"><h3>📝 Create Account</h3><div id="regMsg" class="msg"></div>
+        <!-- FIXED: No action, JS handles it -->
+        <form onsubmit="return doRegister(event)">
+          <input id="regName" placeholder="Full Name e.g. Mary Wanjiku" required>
+          <input type="email" id="regEmail" placeholder="Email" required>
+          <input id="regPhone" placeholder="Phone e.g. 0712345678" required>
+          <input id="regLocation" placeholder="Location e.g. Kiambu" required>
+          <select id="regRole" required><option value="">-- I am a --</option><option value="Farmer">Farmer - Sell</option><option value="Buyer">Buyer - Buy</option></select>
+          <input type="password" id="regPassword" placeholder="Password (min 6)" required>
           <button type="submit" class="btn btn-green" style="width:100%">Create My Account →</button>
-        </form>
-      </div>
-      <div id="loginBox" style="display:none;margin-top:12px">
-        <h3>🔐 Login</h3><div id="loginMsg" class="msg"></div>
-        <form action="/login.php" method="POST" onsubmit="return validateLogin(event)">
-          <input type="email" name="email" id="loginEmail" placeholder="Email" required>
-          <input type="password" name="password" id="loginPassword" placeholder="Password" required>
+        </form></div>
+      <div id="loginBox" style="display:none;margin-top:12px"><h3>🔐 Login</h3><div id="loginMsg" class="msg"></div>
+        <form onsubmit="return doLogin(event)">
+          <input type="email" id="loginEmail" placeholder="Email" required>
+          <input type="password" id="loginPassword" placeholder="Password" required>
           <button type="submit" class="btn btn-yellow" style="width:100%">Login →</button>
-        </form>
-        <p style="font-size:13px;margin-top:8px">Admin: admin@shamba.com / admin123</p>
-      </div>
+        </form><p style="font-size:13px;margin-top:8px">Admin: admin@shamba.com / admin123</p></div>
     </div>
-    <div class="box">
-      <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1000&q=80" style="width:100%;border-radius:10px;height:220px;object-fit:cover">
-      <h3 style="margin-top:10px">Why Farmers Love Us ❤️</h3>
-      <p>✅ No middlemen • ✅ M-Pesa • ✅ Verified by Admin • ✅ Sell to Nairobi, Kiambu, Nakuru</p>
-      <a class="btn btn-white" href="produce_list.php">Browse Live Produce →</a>
-      <a class="btn btn-green" href="farmer_dashboard.php">Farmer Dashboard →</a>
-      <a class="btn btn-yellow" href="cart.php">My Cart →</a>
-    </div>
+    <div class="box"><img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1000&q=80" style="width:100%;border-radius:10px;height:220px;object-fit:cover"><h3 style="margin-top:10px">Why Farmers Love Us ❤️</h3><p>✅ No middlemen • ✅ M-Pesa • ✅ Verified by Admin • ✅ Sell to Nairobi, Kiambu, Nakuru</p><button class="btn btn-white" onclick="loadProduce()">Browse Live Produce →</button><button class="btn btn-green" onclick="openFarmer()">Farmer Dashboard →</button><button class="btn btn-yellow" onclick="toggleCart()">My Cart →</button></div>
   </div>
 </section>
-
-<footer><h3>🌾 ShambaFresh</h3><p>Fresh From Farm To You • Kenya • 2026</p><p><a href="register.php" style="color:#ffdd00">Register</a> | <a href="login.php" style="color:#ffdd00">Login</a> | <a href="admin.php" style="color:#ffdd00">Admin</a> | <a href="cart.php" style="color:#ffdd00">Cart</a></p></footer>
-
+<footer><h3>🌾 ShambaFresh</h3><p>Fresh From Farm To You • Kenya • 2026</p></footer>
 <script>
-// --- CART LOGIC ---
-let cart = JSON.parse(localStorage.getItem('shamba_cart') || '[]');
-function saveCart(){ localStorage.setItem('shamba_cart', JSON.stringify(cart)); renderCart(); }
-function addToCart(name, price, img){
-  let found = cart.find(i=>i.name===name);
-  if(found) found.qty++;
-  else cart.push({name, price, img, qty:1});
-  saveCart();
-  document.getElementById('cartDrawer').classList.add('open');
-  alert(name + " added to cart! 🛒");
-}
-function changeQty(index, delta){
-  cart[index].qty += delta;
-  if(cart[index].qty<=0) cart.splice(index,1);
-  saveCart();
-}
-function removeItem(index){ cart.splice(index,1); saveCart(); }
-function clearCart(){ cart=[]; saveCart(); }
-function toggleCart(){ document.getElementById('cartDrawer').classList.toggle('open'); }
-function renderCart(){
-  let box=document.getElementById('cartItems');
-  let count=0, subtotal=0;
-  if(cart.length===0){ box.innerHTML="<p>Your cart is empty. Add some fresh produce! 🥬</p>"; }
-  else{
-    box.innerHTML = cart.map((item,i)=>{
-      count+=item.qty; subtotal+=item.price*item.qty;
-      return `<div class="cart-item"><img src="${item.img}"><div style="flex:1"><b>${item.name}</b><br>KES ${item.price} x ${item.qty} = KES ${item.price*item.qty}</div><button class="qty-btn" onclick="changeQty(${i},-1)">-</button> ${item.qty} <button class="qty-btn" onclick="changeQty(${i},1)">+</button> <button onclick="removeItem(${i})">🗑</button></div>`;
-    }).join('');
-  }
-  let delivery = cart.length>0 ? 100 : 0;
-  document.getElementById('cartCount').innerText=count;
-  document.getElementById('cartSubtotal').innerText=subtotal;
-  document.getElementById('deliveryFee').innerText=delivery;
-  document.getElementById('cartTotal').innerText=subtotal+delivery;
-  document.getElementById('cartTotalTop').innerText=subtotal+delivery;
-}
-function checkout(){
-  if(cart.length===0){ alert("Cart is empty! Add produce first."); return; }
-  let loc=document.getElementById('deliveryLoc').value.trim();
-  if(!loc){ alert("Please enter delivery location"); return; }
-  let pay=document.getElementById('payMethod').value;
-  let total=parseInt(document.getElementById('cartTotal').innerText);
-  // Save order for checkout.php to read
-  localStorage.setItem('shamba_checkout', JSON.stringify({cart, loc, pay, total}));
-  // Go to REAL backend checkout
-  window.location.href = 'checkout.php';
-}
-function filterProduce(){
-  let q=document.getElementById('searchInput').value.toLowerCase();
-  let cat=document.getElementById('catFilter').value;
-  let price=document.getElementById('priceFilter').value;
-  document.querySelectorAll('#produceGrid .card').forEach(card=>{
-    let name=card.dataset.name, c=card.dataset.cat, p=parseInt(card.dataset.price);
-    let okName = name.includes(q);
-    let okCat = !cat || c===cat;
-    let okPrice = true;
-    if(price==="0-100") okPrice = p<=100;
-    if(price==="100-200") okPrice = p>100 && p<=200;
-    if(price==="200-1000") okPrice = p>200;
-    card.style.display = (okName && okCat && okPrice) ? 'block' : 'none';
-  });
-}
-function showTab(t, el){
-  document.getElementById('regBox').style.display = t==='reg'?'block':'none';
-  document.getElementById('loginBox').style.display = t==='login'?'block':'none';
-  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
-  el.classList.add('active');
-}
-function showMsg(id, text, ok){ let el=document.getElementById(id); el.style.display='block'; el.className='msg '+(ok?'success':'error'); el.innerText=text; }
-function validateRegister(e){
-  if(document.getElementById('regName').value.trim().length<3){showMsg('regMsg','Enter full name',false);return false;}
-  if(!document.getElementById('regEmail').value.includes('@')){showMsg('regMsg','Enter valid email',false);return false;}
-  if(document.getElementById('regPhone').value.trim().length<10){showMsg('regMsg','Enter valid phone',false);return false;}
-  if(!document.getElementById('regRole').value){showMsg('regMsg','Select Farmer or Buyer',false);return false;}
-  if(document.getElementById('regPassword').value.length<6){showMsg('regMsg','Password min 6 chars',false);return false;}
-  showMsg('regMsg','Creating account... Please wait...',true); return true;
-}
-function validateLogin(e){
-  if(!document.getElementById('loginEmail').value.includes('@')){showMsg('loginMsg','Enter valid email',false);return false;}
-  return true;
-}
-renderCart();
+let cart=JSON.parse(localStorage.getItem('shamba_cart')||'[]');
+let currentUser=JSON.parse(localStorage.getItem('shamba_user')||'null');
+let allProduce=[];
+const IMG={Tomatoes:'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&q=80','Sukuma Wiki':'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80',Potatoes:'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&q=80',Onions:'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=800&q=80',Maize:'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=800&q=80',Bananas:'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=800&q=80','Fresh Milk':'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=800&q=80',Cabbage:'https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=800&q=80'};
+function showMsg(id,text,ok){let el=document.getElementById(id);el.style.display='block';el.className='msg '+(ok?'success':'error');el.innerText=text;}
+function updateUser(){if(currentUser){document.getElementById('userLabel').textContent='👋 '+currentUser.name+' ('+currentUser.role+') • Logout';document.getElementById('userLabel').onclick=()=>{localStorage.removeItem('shamba_user');location.reload();};document.getElementById('userLabel').style.cursor='pointer';}} updateUser();
+// --- REGISTER: talks to DB ---
+async function doRegister(e){e.preventDefault();
+  let full_name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),phone=document.getElementById('regPhone').value.trim(),location=document.getElementById('regLocation').value.trim(),role=document.getElementById('regRole').value,password=document.getElementById('regPassword').value;
+  if(full_name.length<3)return showMsg('regMsg','Enter full name',false); if(!email.includes('@'))return showMsg('regMsg','Enter valid email',false); if(phone.length<10)return showMsg('regMsg','Enter valid phone',false); if(!role)return showMsg('regMsg','Select Farmer or Buyer',false); if(password.length<6)return showMsg('regMsg','Password min 6 chars',false);
+  showMsg('regMsg','Creating account...',true);
+  try{let r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({full_name,email,phone,location,password,role})});let d=await r.json();showMsg('regMsg',d.msg,d.success);if(d.success){setTimeout(()=>showTab('login',document.querySelectorAll('.tab')[1]),1000);}}catch(err){showMsg('regMsg','Server error - try again',false);} return false;}
+async function doLogin(e){e.preventDefault();
+  let email=document.getElementById('loginEmail').value.trim(),password=document.getElementById('loginPassword').value;
+  try{let r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});let d=await r.json();showMsg('loginMsg',d.msg||('Welcome '+d.name),d.success);if(d.success){currentUser={name:d.name,role:d.role,email};localStorage.setItem('shamba_user',JSON.stringify(currentUser));updateUser();}}catch(err){showMsg('loginMsg','Server error',false);} return false;}
+function showTab(t,el){document.getElementById('regBox').style.display=t==='reg'?'block':'none';document.getElementById('loginBox').style.display=t==='login'?'block':'none';document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');}
+// --- PRODUCE ---
+async function loadProduce(){try{let r=await fetch('/api/produce');let items=await r.json();if(!items.length){items=[{produce_id:1,name:'Tomatoes',category:'Vegetables',price:120,stock:50},{produce_id:2,name:'Sukuma Wiki',category:'Vegetables',price:50,stock:100},{produce_id:3,name:'Potatoes',category:'Vegetables',price:180,stock:80},{produce_id:4,name:'Onions',category:'Vegetables',price:90,stock:60},{produce_id:5,name:'Maize',category:'Grains',price:150,stock:200},{produce_id:6,name:'Bananas',category:'Fruits',price:80,stock:90},{produce_id:7,name:'Fresh Milk',category:'Dairy',price:70,stock:40},{produce_id:8,name:'Cabbage',category:'Vegetables',price:100,stock:70}];document.getElementById('produceMsg').textContent='Showing fresh picks (demo) - Add produce as Farmer to see live items';}else document.getElementById('produceMsg').textContent='✅ Live from database - '+items.length+' items approved';allProduce=items;renderProduce(items);}catch(e){document.getElementById('produceMsg').textContent='Could not load produce';}}
+function renderProduce(items){document.getElementById('produceGrid').innerHTML=items.map(p=>`<div class="card" data-name="${p.name.toLowerCase()}" data-cat="${p.category}" data-price="${p.price}"><img src="${IMG[p.name]||'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80'}"><div><h3>${p.name}</h3><p>${p.category} • ${p.location||'Kenya'} • Farmer ID: ${p.farmer_id||'1'}</p><p class="stock">✅ In Stock - ${p.stock}</p><p class="price">KES ${p.price}</p><button class="btn btn-green" onclick="addToCart('${p.name.replace(/'/g,'')}',${p.price},'${IMG[p.name]||''}')">🛒 Add to Cart</button></div></div>`).join('');}
+function filterProduce(){let q=document.getElementById('searchInput').value.toLowerCase(),cat=document.getElementById('catFilter').value,pr=document.getElementById('priceFilter').value;document.querySelectorAll('#produceGrid .card').forEach(c=>{let ok=c.dataset.name.includes(q)&&(!cat||c.dataset.cat===cat);let p=parseInt(c.dataset.price);if(pr==="0-100")ok=ok&&p<=100;if(pr==="100-200")ok=ok&&p>100&&p<=200;if(pr==="200-1000")ok=ok&&p>200;c.style.display=ok?'block':'none';});}
+// --- CART ---
+function saveCart(){localStorage.setItem('shamba_cart',JSON.stringify(cart));renderCart();}
+function addToCart(name,price,img){let f=cart.find(i=>i.name===name);if(f)f.qty++;else cart.push({name,price,img,qty:1});saveCart();document.getElementById('cartDrawer').classList.add('open');}
+function changeQty(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);saveCart();}
+function removeItem(i){cart.splice(i,1);saveCart();}
+function clearCart(){cart=[];saveCart();}
+function toggleCart(){document.getElementById('cartDrawer').classList.toggle('open');}
+function renderCart(){let box=document.getElementById('cartItems'),count=0,sub=0;box.innerHTML=cart.length?cart.map((it,i)=>{count+=it.qty;sub+=it.price*it.qty;return `<div class="cart-item"><img src="${it.img}"><div style="flex:1"><b>${it.name}</b><br>KES ${it.price} x ${it.qty} = ${it.price*it.qty}</div><button class="qty-btn" onclick="changeQty(${i},-1)">-</button> ${it.qty} <button class="qty-btn" onclick="changeQty(${i},1)">+</button> <button onclick="removeItem(${i})">🗑</button></div>`}).join(''):'<p>Your cart is empty. Add some fresh produce! 🥬</p>';let del=cart.length?100:0;document.getElementById('cartCount').innerText=count;document.getElementById('cartSubtotal').innerText=sub;document.getElementById('deliveryFee').innerText=del;document.getElementById('cartTotal').innerText=sub+del;document.getElementById('cartTotalTop').innerText=sub+del;}
+async function checkout(){if(!cart.length)return alert('Cart is empty!');let loc=document.getElementById('deliveryLoc').value.trim();if(!loc)return alert('Enter delivery location');let pay=document.getElementById('payMethod').value,total=parseInt(document.getElementById('cartTotal').innerText);try{let r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({buyer_id:currentUser?1:1,total,location:loc,payment:pay,items:cart})});let d=await r.json();document.getElementById('checkoutMsg').textContent=d.msg;if(d.success){cart=[];saveCart();}}catch(e){alert('Checkout failed');}}
+// --- ADMIN / FARMER ---
+function openAdmin(){document.getElementById('adminPanel').style.display='block';document.getElementById('adminPanel').scrollIntoView({behavior:'smooth'});loadAdmin();}
+function openFarmer(){document.getElementById('farmerPanel').style.display='block';document.getElementById('farmerPanel').scrollIntoView({behavior:'smooth'});}
+async function loadAdmin(){let el=document.getElementById('adminData');el.innerHTML='Loading...';try{let r=await fetch('/api/admin/pending');let d=await r.json();el.innerHTML='<h4>Pending Users</h4>'+(d.users.length?d.users.map(u=>`<p>${u.full_name} (${u.email}) - ${u.role} <button class="btn btn-green" onclick="approve('user',${u.user_id})">Approve</button></p>`).join(''):'<p>No pending users ✅</p>')+'<h4 style="margin-top:10px">Pending Produce</h4>'+(d.produce.length?d.produce.map(p=>`<p>${p.name} - KES ${p.price} <button class="btn btn-green" onclick="approve('produce',${p.produce_id})">Approve</button></p>`).join(''):'<p>No pending produce ✅</p>');}catch(e){el.innerHTML='Admin API not ready - update server.js';}}
+async function approve(type,id){await fetch('/api/admin/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type,id})});loadAdmin();loadProduce();}
+async function addProduce(){let name=document.getElementById('fName').value,category=document.getElementById('fCat').value,price=document.getElementById('fPrice').value,stock=document.getElementById('fStock').value;if(!name||!price)return document.getElementById('farmerMsg').textContent='Fill name & price';let r=await fetch('/api/produce',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,price,stock,farmer_id:1})});let d=await r.json();document.getElementById('farmerMsg').textContent=d.msg||'Sent for Admin approval!';}
+loadProduce();renderCart();
 </script>
 </body>
 </html>
