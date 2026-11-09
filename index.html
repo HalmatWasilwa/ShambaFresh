@@ -181,7 +181,7 @@ footer{background:#123f1d;color:white;text-align:center;padding:20px;margin-top:
       <span class="tab active" onclick="showTab('reg',this)">Register</span><span class="tab" onclick="showTab('login',this)">Login</span>
       <div id="regBox" style="margin-top:12px">
         <h3>📝 Create Account</h3><div id="regMsg" class="msg"></div>
-        <form action="register.php" method="POST" onsubmit="return validateRegister(event)">
+           <form action="/register" method="POST"></form>" onsubmit="return validateRegister(event)">
           <input name="full_name" id="regName" placeholder="Full Name e.g. Mary Wanjiku" required>
           <input type="email" name="email" id="regEmail" placeholder="Email" required>
           <input name="phone" id="regPhone" placeholder="Phone e.g. 0712345678" required>
@@ -193,7 +193,7 @@ footer{background:#123f1d;color:white;text-align:center;padding:20px;margin-top:
       </div>
       <div id="loginBox" style="display:none;margin-top:12px">
         <h3>🔐 Login</h3><div id="loginMsg" class="msg"></div>
-        <form action="login.php" method="POST" onsubmit="return validateLogin(event)">
+        <form action="/login.php" method="POST" onsubmit="return validateLogin(event)">
           <input type="email" name="email" id="loginEmail" placeholder="Email" required>
           <input type="password" name="password" id="loginPassword" placeholder="Password" required>
           <button type="submit" class="btn btn-yellow" style="width:100%">Login →</button>
