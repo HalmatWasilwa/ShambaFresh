@@ -15,7 +15,7 @@ async function connectDB(){
   await db.execute(`CREATE TABLE IF NOT EXISTS Produce(produce_id INT AUTO_INCREMENT PRIMARY KEY, farmer_id INT, name VARCHAR(100), category VARCHAR(50), price DECIMAL(10,2), stock INT, location VARCHAR(100), status VARCHAR(20) DEFAULT 'Pending')`);
   await db.execute(`CREATE TABLE IF NOT EXISTS Orders(order_id INT AUTO_INCREMENT PRIMARY KEY, buyer_id INT, total_amount DECIMAL(10,2), status VARCHAR(20) DEFAULT 'Pending', delivery_location VARCHAR(255), payment_method VARCHAR(50))`);
   const [a]=await db.execute("SELECT * FROM Users WHERE email='admin@shamba.com'");
-  if(!a.length){const h=await bcrypt.hash('admin123',10);await db.execute("INSERT INTO Users(full_name,email,password,role,status) VALUES(?,?,?,?,?)",['Admin','admin@shamba.com',h,'Admin','Approved']);}
+  if(!a.length){const h=await bcrypt.hash('admin123',10);await db.execute("INSERT INTO Users(full_name,email,password,role,status) VALUES(?,?,?,?, 'Pending')",[full_name,email,hash,role||'Buyer']);
 }
 async function connectDB(){
   db=await mysql.createConnection({host:process.env.DB_HOST||'localhost',user:process.env.DB_USER||'root',password:process.env.DB_PASS||'',database:process.env.DB_NAME||'shambafresh'});
@@ -32,7 +32,7 @@ async function connectDB(){
 
   const [a]=await db.execute("SELECT * FROM Users WHERE email='admin@shamba.com'");
   if(!a.length){const h=await bcrypt.hash('admin123',10);await db.execute("INSERT INTO Users(full_name,email,password,role,status) VALUES(?,?,?,?,?)",['Admin','admin@shamba.com',h,'Admin','Approved']);}
-}
+}f
 async function doLogin(req,res){
   try{const {email,password}=req.body;const [rows]=await db.execute("SELECT * FROM Users WHERE email=?",[email]);if(!rows.length)return res.json({success:false,msg:'User not found'});
   const u=rows[0];if(u.status!=='Approved')return res.json({success:false,msg:'⏳ Account Pending Admin Approval. Ask Admin to approve.'});
